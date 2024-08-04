@@ -9,7 +9,7 @@ export async function getAllModules() {
   return modules;
 }
 
-export async function getChaptersByStoryId(id: string) {
+export async function getChaptersByModuleId(id: string) {
   const chapters = await prisma.chapter.findMany({
     where: {
       moduleId: id,
@@ -19,8 +19,6 @@ export async function getChaptersByStoryId(id: string) {
 }
 
 export async function getChapterById(id: string, lang: string) {
-  console.log("fetching story");
-
   const chapter = await prisma.chapter.findUnique({
     where: {
       id: id,
@@ -37,5 +35,8 @@ export async function getChapterById(id: string, lang: string) {
       },
     },
   });
+  if (!chapter) {
+    throw new Error(`Chapter with id ${id} not found`);
+  }
   return chapter;
 }

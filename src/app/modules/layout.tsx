@@ -14,7 +14,7 @@ import { ReactNode } from "react";
 const navigation = [
   { name: "Dashboard", href: "/", current: true },
   { name: "Team", href: "#", current: false },
-  { name: "Projects", href: "/stories/story", current: false },
+  { name: "Projects", href: "/modules/story", current: false },
   { name: "Calendar", href: "#", current: false },
 ];
 
