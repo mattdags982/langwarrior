@@ -1,6 +1,5 @@
 "use client";
 
-import { Button, Slider } from "@mui/material";
 import { useState, useRef, useEffect } from "react";
 
 type AudioPlayerProps = {
@@ -30,10 +29,10 @@ export default function AudioPlayer({ audioSrc }: AudioPlayerProps) {
     }
   };
 
-  const handleSliderChange = (event: Event, newValue: number | number[]) => {
+  const handleSliderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (audioRef.current) {
-      audioRef.current.currentTime = newValue as number;
-      setCurrentTime(newValue as number);
+      audioRef.current.currentTime = Number(event.target.value);
+      setCurrentTime(Number(event.target.value));
     }
   };
 
@@ -58,18 +57,26 @@ export default function AudioPlayer({ audioSrc }: AudioPlayerProps) {
   return (
     <div className="fixed bottom-0 left-0 w-full bg-gray-200 py-4 h-[120px] flex flex-col items-center">
       <div className="gap-4 flex items-center">
-        <Button variant="outlined" onClick={rewindAudio}>
+        <button
+          className="border border-gray-400 px-4 py-2"
+          onClick={rewindAudio}
+        >
           -2
-        </Button>
-        <Button variant="outlined" onClick={togglePlayPause}>
+        </button>
+        <button
+          className="border border-gray-400 px-4 py-2"
+          onClick={togglePlayPause}
+        >
           {isPlaying ? "Pause" : "Play"}
-        </Button>
+        </button>
       </div>
       <div className="w-[860px]">
-        <Slider
+        <input
+          type="range"
           value={currentTime}
           onChange={handleSliderChange}
           max={duration || 100}
+          className="w-full"
         />
       </div>
       <audio
