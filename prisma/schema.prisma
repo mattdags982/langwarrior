@@ -1,0 +1,57 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model Module {
+  id               String     @default(cuid()) @id
+  title            String
+  description      String
+  difficultyRating Int
+  category         String
+  chapters         Chapter[]
+}
+
+model Chapter {
+  id          String     @default(cuid()) @id
+  moduleId    String
+  module      Module     @relation(fields: [moduleId], references: [id])
+  title       String
+  description String
+  audioLink   String?    @map(name: "audio_link")
+  createdAt   DateTime   @default(now()) @map(name: "created_at")
+  updatedAt   DateTime   @updatedAt @map(name: "updated_at")
+  blurbs      Blurb[]
+}
+
+model Blurb {
+  id             String     @default(cuid()) @id
+  chapterId      String
+  chapter        Chapter    @relation(fields: [chapterId], references: [id])
+  sequence       Int
+  characterName  String     @map(name: "character_name")
+  contentEnglish String     @map(name: "content_english")
+  createdAt      DateTime   @default(now()) @map(name: "created_at")
+  updatedAt      DateTime   @updatedAt @map(name: "updated_at")
+  translations   Translation[]
+  @@map(name: "blurbs")
+  @@index([chapterId, sequence])
+}
+
+model Translation {
+  id                String     @default(cuid()) @id
+  blurbId           String
+  blurb             Blurb      @relation(fields: [blurbId], references: [id])
+  languageCode      String     @map(name: "language_code")
+  translatedContent String     @map(name: "translated_content")
+  createdAt         DateTime   @default(now()) @map(name: "created_at")
+  updatedAt         DateTime   @updatedAt @map(name: "updated_at")
+  @@unique([blurbId, languageCode])
+}
