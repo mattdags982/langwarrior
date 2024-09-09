@@ -1,5 +1,6 @@
 import { getChapterById } from "@/app/api/modules";
 import AudioPlayer from "@/app/components/AudioPlayer";
+import Blurb from "@/app/components/Blurb";
 
 interface Props {
   params: {
@@ -16,7 +17,7 @@ export default async function Example({
     <>
       <div className="py-10 mb-14">
         <header>
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
             <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">
               {chapter.title}
             </h1>
@@ -24,17 +25,10 @@ export default async function Example({
           </div>
         </header>
         <main>
-          <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-            <ul role="list" className="divide-y divide-gray-200">
+          <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+            <ul role="list">
               {chapter.blurbs.map((blurb) => (
-                <li key={blurb.id} className="py-4">
-                  <p className="text-sm font-medium text-gray-900">
-                    {blurb.characterName}
-                  </p>
-                  <p className="truncate text-sm text-gray-500">
-                    {blurb.contentEnglish}
-                  </p>
-                </li>
+                <Blurb blurb={blurb} key={blurb.id} />
               ))}
             </ul>
           </div>
