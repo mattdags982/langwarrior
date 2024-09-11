@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Transition } from "@headlessui/react";
+import { ChevronUpIcon } from "@heroicons/react/24/solid";
 
 interface BlurbProps {
   blurb: {
@@ -57,7 +58,11 @@ export default function Blurb({ blurb }: BlurbProps) {
               setShowTranslation(!showTranslation);
             }}
           >
-            Translate
+            <ChevronUpIcon
+              className={`text-gray-300 size-4 stroke-2 transition-transform duration-300 ${
+                showTranslation ? "rotate-180" : ""
+              }`}
+            />
           </button>
         </div>
       </div>
