@@ -13,6 +13,7 @@ export default async function Example({
   params: { module_id, chapter_id },
 }: Props) {
   const chapter = await getChapterById(chapter_id, "es");
+  console.log(chapter);
   return (
     <>
       <div className="py-10 mb-14">
@@ -34,7 +35,7 @@ export default async function Example({
           </div>
         </main>
       </div>
-      <AudioPlayer audioSrc="/audio/next.mp3" />
+      <AudioPlayer audioSrc={`/audio/${chapter.audioLink}` || "/audio/next.mp3"} />
     </>
   );
 }
