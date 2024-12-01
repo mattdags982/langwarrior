@@ -54,7 +54,6 @@ export default function AudioPlayer({ audioSrc }: AudioPlayerProps) {
     };
   }, []);
  
-  // TODO: restyle audio player
   return (
     <div className="fixed bottom-0 left-0 w-full bg-gray-200 py-4 h-[120px] flex flex-col items-center">
       <div className="gap-4 flex items-center">
