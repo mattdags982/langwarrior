@@ -38,5 +38,6 @@ export async function getChapterById(id: string, lang: string) {
   if (!chapter) {
     throw new Error(`Chapter with id ${id} not found`);
   }
+  chapter.blurbs.sort((a, b) => a.sequence - b.sequence);
   return chapter;
 }
