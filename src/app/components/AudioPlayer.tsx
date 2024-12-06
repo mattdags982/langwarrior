@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { PlayIcon, PauseIcon, ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
+
 
 type AudioPlayerProps = {
   audioSrc: string;
@@ -53,25 +55,24 @@ export default function AudioPlayer({ audioSrc }: AudioPlayerProps) {
       }
     };
   }, []);
-  // TODO: restyle audio player
  
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-gray-200 py-4 h-[120px] flex flex-col items-center">
+    <div className="fixed bottom-0 left-0 w-full bg-gray-200 py-4 h-30">
+      <div className="gap-2 flex flex-col items-center justify-center px-10 md:px-20 lg:px-40">
+
       <div className="gap-4 flex items-center">
         <button
-          className="border border-gray-400 px-4 py-2"
           onClick={rewindAudio}
         >
-          -2
+          <ArrowUturnLeftIcon className="h-6 w-6"/>
         </button>
         <button
-          className="border border-gray-400 px-4 py-2"
           onClick={togglePlayPause}
         >
-          {isPlaying ? "Pause" : "Play"}
+          {isPlaying ? <PauseIcon className="h-6 w-6 sm:h-8 sm:w-8"/> : <PlayIcon className="h-6 w-6 sm:h-8 sm:w-8"/>}
         </button>
       </div>
-      <div className="w-[860px]">
+      <div className="w-full">
         <input
           type="range"
           value={currentTime}
@@ -79,6 +80,7 @@ export default function AudioPlayer({ audioSrc }: AudioPlayerProps) {
           max={duration || 100}
           className="w-full"
         />
+      </div>
       </div>
       <audio
         ref={audioRef}
