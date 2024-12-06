@@ -23,9 +23,9 @@ export default function Example({ children }: ExampleProps) {
   ];
   return (
     <>
-      <Disclosure as="nav" className="bg-gray-800">
-        <div className="relative flex h-16 items-center justify-between sm:ml-6">
-          <div className="flex space-x-4">
+      <Disclosure as="nav" className="bg-gray-800 flex sm:justify-start justify-center">
+        <div className="relative flex h-16 items-center justify-between sm:ml-6 w-full">
+          <div className="flex space-x-6 sm:space-x-4 justify-center sm:justify-start w-full">
                   {navigation.map((item) => (
                     <a
                       key={item.name}
