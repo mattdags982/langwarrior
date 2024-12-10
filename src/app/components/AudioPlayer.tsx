@@ -57,10 +57,15 @@ export default function AudioPlayer({ audioSrc }: AudioPlayerProps) {
   }, []);
  
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-gray-200 py-4 h-30">
-      <div className="gap-2 flex flex-col items-center justify-center px-10 md:px-20 lg:px-40">
-
-      <div className="gap-4 flex items-center">
+    <div className="fixed bottom-0 left-0 w-full bg-gray-200 py-4 pb-8 sm:pt-6 sm:pb-6 h-30">
+      <div className="gap-4 flex items-center justify-center">
+        <input
+          type="range"
+          value={currentTime}
+          onChange={handleSliderChange}
+          max={duration || 100}
+          className="w-1/2"
+        />
         <button
           onClick={rewindAudio}
         >
@@ -71,16 +76,6 @@ export default function AudioPlayer({ audioSrc }: AudioPlayerProps) {
         >
           {isPlaying ? <PauseIcon className="h-6 w-6 sm:h-8 sm:w-8"/> : <PlayIcon className="h-6 w-6 sm:h-8 sm:w-8"/>}
         </button>
-      </div>
-      <div className="w-full">
-        <input
-          type="range"
-          value={currentTime}
-          onChange={handleSliderChange}
-          max={duration || 100}
-          className="w-full"
-        />
-      </div>
       </div>
       <audio
         ref={audioRef}
