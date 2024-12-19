@@ -4,14 +4,18 @@ import { useState, useRef, useEffect } from "react";
 import { PlayIcon, PauseIcon, ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
 
 
+const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+
 type AudioPlayerProps = {
-  audioSrc: string;
+  audioId: string;
 };
 
-export default function AudioPlayer({ audioSrc }: AudioPlayerProps) {
+export default function AudioPlayer({ audioId }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [duration, setDuration] = useState<number | null>(null);
   const [currentTime, setCurrentTime] = useState<number>(0);
+
+  const audioSrc = `https://res.cloudinary.com/${cloudName}/video/upload/${audioId}.mp3`;
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
