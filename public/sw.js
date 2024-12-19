@@ -88,22 +88,6 @@ define(['./workbox-7144475a'], (function (workbox) { 'use strict';
     "cacheName": "dev",
     plugins: []
   }), 'GET');
-
-  // Cache strategy for external Cloudinary audio files
-  workbox.registerRoute(
-    new RegExp('https://res.cloudinary.com/.*/audio/upload/.*\\.mp3'),
-    new workbox.CacheFirst({
-      "cacheName": "cloudinary-audio",
-      plugins: [
-        new workbox.ExpirationPlugin({
-          maxEntries: 50,
-          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
-        }),
-      ],
-    }),
-    'GET'
-  );
-
   self.__WB_DISABLE_DEV_LOGS = true;
 
 }));
