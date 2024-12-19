@@ -21,6 +21,11 @@ export default function Example({ children }: ExampleProps) {
     { name: "Home", href: "/", current: pathname === "/" },
     { name: "Stories", href: "/modules", current: pathname === "/modules" },
   ];
+
+  if (process.env.NODE_ENV === 'development') {
+    navigation.push({ name: "Dev", href: "/modules/dev", current: pathname === "/dev" });
+  }
+
   return (
     <>
       <Disclosure as="nav" className="bg-gray-800 flex sm:justify-start justify-center">
