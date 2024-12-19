@@ -12,6 +12,22 @@ const withPWA = withPWAInit({
   workboxOptions: {
     disableDevLogs: true,
   },
+  runtimeCaching: [
+    {
+      urlPattern: /^https:\/\/res\.cloudinary\.com\/.*\/audio\/.*\.mp3$/,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'cloudinary-audio-cache',
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 30 * 24 * 60 * 60, // Cache for 30 days
+        },
+        cacheableResponse: {
+          statuses: [0, 200],
+        },
+      },
+    },
+  ],
 });
 
 const nextConfig = {
