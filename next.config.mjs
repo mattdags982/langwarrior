@@ -15,7 +15,7 @@ const withPWA = withPWAInit({
   runtimeCaching: [
     {
       urlPattern: /^https:\/\/res\.cloudinary\.com\/.*\/audio\/.*\.mp3$/,
-      handler: 'CacheFirst',
+      handler: 'NetworkFirst',
       options: {
         cacheName: 'cloudinary-audio-cache',
         expiration: {
