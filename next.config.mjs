@@ -31,7 +31,7 @@ const withPWA = withPWAInit({
 
 const nextConfig = {
   images: {
-    domains: ["tailwindui.com", "images.unsplash.com"],
+    domains: ["tailwindui.com", "images.unsplash.com", "lh3.googleusercontent.com"],
   },
 };
 
