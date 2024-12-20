@@ -5,6 +5,8 @@ import {
 } from "@headlessui/react";
 import { ReactNode } from "react";
 import { usePathname } from 'next/navigation'
+import { useAuth } from "../AuthContext";
+import Image from "next/image";
 
 
 function classNames(...classes: string[]) {
@@ -16,6 +18,7 @@ interface ExampleProps {
 }
 
 export default function Example({ children }: ExampleProps) {
+  const { user, logOut } = useAuth();
   const pathname = usePathname()
   const navigation = [
     { name: "Home", href: "/", current: pathname === "/" },
@@ -46,7 +49,34 @@ export default function Example({ children }: ExampleProps) {
               {item.name}
             </a>
           ))}
-        </div>
+          </div>
+          <div className="flex space-x-6 sm:space-x-4 justify-center sm:justify-end w-full">
+              {user ? <div className="flex items-center">
+                {user.photoURL && <Image src={user.photoURL} alt="User Avatar" width={32} height={32} className="w-8 h-8 rounded-full mr-2" />}
+                <button
+                onClick={logOut}
+                aria-current={pathname === "/login" ? "page" : undefined}
+                className={classNames(
+                pathname === "/login"
+                          ? "bg-gray-900 text-white"
+                          : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                  "rounded-md px-3 py-2 text-sm font-medium"
+                )}
+              >
+                Logout
+              </button></div> : <a
+                href={"/modules/login"}
+                aria-current={pathname === "/login" ? "page" : undefined}
+                className={classNames(
+                pathname === "/login"
+                          ? "bg-gray-900 text-white"
+                          : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                  "rounded-md px-3 py-2 text-sm font-medium"
+                )}
+              >
+                Login
+              </a>}
+          </div>
         </div>
       </Disclosure>
       {children}
