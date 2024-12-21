@@ -3,18 +3,10 @@
 import { useState } from "react";
 import { Transition } from "@headlessui/react";
 import { ChevronUpIcon } from "@heroicons/react/24/solid";
+import { Blurb } from "@/app/types";
 
 interface BlurbProps {
-  blurb: {
-    id: string;
-    characterName: string;
-    contentEnglish: string;
-    translations: {
-      blurbId: string;
-      languageCode: string;
-      translatedContent: string;
-    }[];
-  };
+  blurb: Blurb;
 }
 
 const transitionClasses = {
@@ -26,24 +18,52 @@ const transitionClasses = {
   leaveTo: "max-h-0 overflow-hidden",
 };
 
-export default function Blurb({ blurb }: BlurbProps) {
+export default function BlurbListen({ blurb }: BlurbProps) {
   const [showTranslation, setShowTranslation] = useState(false);
+  const [inputValue, setInputValue] = useState("");
 
   const translation = blurb.translations.find(
     (translation) => translation.languageCode === "es"
   );
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInputValue(event.target.value);
+  };
+
+  const normalizeText = (text: string) => {
+    return text
+      .normalize("NFD") // Normalize to NFD (Normalization Form Decomposition)
+      .replace(/[\u0300-\u036f]/g, "") // Remove diacritical marks
+      .replace(/\(.*?\)/g, "") // Remove text within parentheses
+      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?¿]/g, "") // Remove punctuation and question marks
+      .replace(/\s{2,}/g, " ") // Replace multiple spaces with a single space
+      .trim()
+      .toLowerCase(); // Convert to lowercase
+  };
+
+  const isCorrect =
+    translation &&
+    normalizeText(inputValue) === normalizeText(translation.translatedContent);
 
   return (
     <li key={blurb.id} className="py-6">
       <div className="w-full">
         <div>
           <p className="text-lg font-medium mb-4">{blurb.characterName}:</p>
-          <p className="text-lg">
-            {translation ? translation.translatedContent : ""}
-          </p>
+          <textarea
+            value={inputValue}
+            onChange={handleInputChange}
+            className={`text-lg p-2 border w-full ${
+              isCorrect ? "border-green-500" : "border-gray-300"
+            }`}
+            placeholder="Type the translation here"
+            rows={4}
+          />
         </div>
         <Transition show={showTranslation} {...transitionClasses}>
-          <p className="text-lg text-gray-500 mt-6">{blurb.contentEnglish}</p>
+          <p className="text-lg text-gray-500 mt-6">
+            {translation ? translation.translatedContent : ""}
+          </p>
         </Transition>
       </div>
       <div className="relative mt-6">

@@ -1,6 +1,6 @@
 import { getChapterById } from "@/app/api/modules";
 import AudioPlayer from "@/app/components/AudioPlayer";
-import Blurb from "@/app/components/Blurb";
+import BlurbRead from "@/app/components/BlurbRead";
 
 interface Props {
   params: {
@@ -28,7 +28,7 @@ export default async function Example({
           <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
             <ul role="list">
               {chapter.blurbs.map((blurb) => (
-                <Blurb blurb={blurb} key={blurb.id} />
+                <BlurbRead blurb={blurb} key={blurb.id} />
               ))}
             </ul>
           </div>
