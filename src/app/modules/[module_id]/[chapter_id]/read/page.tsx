@@ -15,24 +15,30 @@ export default async function Example({
   const chapter = await getChapterById(chapter_id, "es");
   return (
     <>
-      <div className="py-10 mb-14">
-        <header>
-          <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-            <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">
-              {chapter.title}
-            </h1>
-            <p className="mt-2 text-lg text-gray-600">{chapter.description}</p>
-          </div>
-        </header>
-        <main>
-          <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-            <ul role="list">
-              {chapter.blurbs.map((blurb) => (
-                <BlurbRead blurb={blurb} key={blurb.id} />
-              ))}
-            </ul>
-          </div>
-        </main>
+      <div className="min-h-screen bg-gray-50">
+        <div className="py-10 mb-14">
+          <header className="mb-12">
+            <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                {chapter.title}
+              </h1>
+              <p className="text-xl text-gray-600 leading-relaxed">
+                {chapter.description}
+              </p>
+            </div>
+          </header>
+          <main>
+            <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+              <ul role="list" className="space-y-8">
+                {chapter.blurbs.map((blurb) => (
+                  <li key={blurb.id} className="prose prose-lg max-w-none prose-p:mt-2 prose-p:mb-2">
+                    <BlurbRead blurb={blurb} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </main>
+        </div>
       </div>
       <AudioPlayer audioId={chapter.audioLink!} />
     </>

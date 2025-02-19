@@ -5,7 +5,7 @@ import { useState } from "react";
 import { publishStory } from '@/app/services/storyService';
 
 const Spinner = () => (
-  <div className="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" role="status">
+  <div className="inline-block h-5 w-5 animate-spin rounded-full border-3 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" role="status">
     <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
   </div>
 );
@@ -23,36 +23,38 @@ const StoryModal = ({ isOpen, onClose, onSubmit, isLoading = false }: StoryModal
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white p-6 rounded-lg w-96">
-        <h2 className="text-xl font-bold mb-4">Generate a Story</h2>
-        <textarea
-          className="w-full p-2 border rounded mb-4"
-          rows={4}
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Enter your story prompt..."
-          disabled={isLoading}
-        />
-        <div className="flex justify-end gap-2">
-          <button
-            className="px-4 py-2 bg-gray-200 rounded"
-            onClick={onClose}
+    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl shadow-lg w-full max-w-lg mx-4">
+        <div className="p-6 space-y-4">
+          <h2 className="text-2xl font-bold text-gray-900">Generate a Story</h2>
+          <textarea
+            className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+            rows={4}
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Enter your story prompt..."
             disabled={isLoading}
-          >
-            Cancel
-          </button>
-          <button
-            className="px-4 py-2 bg-blue-500 text-white rounded flex items-center gap-2 disabled:bg-blue-300"
-            onClick={() => {
-              onSubmit(prompt);
-              setPrompt("");
-            }}
-            disabled={isLoading}
-          >
-            {isLoading && <Spinner />}
-            {isLoading ? 'Generating...' : 'Generate'}
-          </button>
+          />
+          <div className="flex justify-end gap-3">
+            <button
+              className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200"
+              onClick={onClose}
+              disabled={isLoading}
+            >
+              Cancel
+            </button>
+            <button
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg transition-all duration-200 flex items-center gap-2 disabled:opacity-50"
+              onClick={() => {
+                onSubmit(prompt);
+                setPrompt("");
+              }}
+              disabled={isLoading}
+            >
+              {isLoading && <Spinner />}
+              {isLoading ? 'Generating...' : 'Generate'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -99,7 +101,6 @@ export default function Dev() {
         throw new Error(data.error);
       }
       
-      // The response now includes the story object directly
       setStory(data);
     } catch (error) {
       console.error('Error generating story:', error);
@@ -116,7 +117,6 @@ export default function Dev() {
     try {
       const result = await publishStory(story);
       console.log('Story published successfully:', result);
-      // Clear the story after successful publish
       setStory(null);
       alert('Story published successfully!');
     } catch (error) {
@@ -134,62 +134,68 @@ export default function Dev() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="space-y-4 w-full max-w-2xl">
-        <div className="flex gap-4">
-          <CldUploadWidget uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}>
-            {({ open }) => (
-              <button 
-                className="px-4 py-2 bg-blue-500 text-white rounded"
-                onClick={() => open()}
+    <div className="min-h-screen bg-gray-50">
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-0.5rem)]">
+        {!story && (
+          <div className="flex flex-col items-center gap-4 mb-8">
+            <div className="flex gap-4">
+              <CldUploadWidget uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}>
+                {({ open }) => (
+                  <button 
+                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg transition-all duration-200 shadow-sm text-lg"
+                    onClick={() => open()}
+                  >
+                    Upload an Image
+                  </button>
+                )}
+              </CldUploadWidget>
+              
+              <button
+                className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white rounded-lg transition-all duration-200 shadow-sm text-lg"
+                onClick={() => setIsModalOpen(true)}
               >
-                Upload an Image
+                Story Generator
               </button>
-            )}
-          </CldUploadWidget>
-          
-          <button
-            className="px-4 py-2 bg-green-500 text-white rounded"
-            onClick={() => setIsModalOpen(true)}
-          >
-            Story Generator
-          </button>
-        </div>
+            </div>
+          </div>
+        )}
 
         {story && (
-          <div className="mt-4 p-4 bg-gray-100 rounded">
-            <h2 className="text-2xl font-bold mb-2">{story.title}</h2>
-            <p className="text-gray-600 mb-4">{story.description}</p>
-            <div className="space-y-4">
-              {story.conversations.map((conv, index) => (
-                <div key={index} className="border-b pb-2">
-                  <div className="font-semibold text-gray-700">{conv.name}</div>
-                  <div className="pl-4 space-y-2">
-                    <div className="bg-white p-2 rounded">
-                      <p className="text-gray-800">{conv.contentEnglish}</p>
-                      <p className="text-gray-600 italic mt-1">{conv.contentSpanish}</p>
+          <div className="w-full max-w-4xl px-4">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-3">{story.title}</h2>
+                <p className="text-gray-600 text-lg mb-6">{story.description}</p>
+                <div className="space-y-6">
+                  {story.conversations.map((conv, index) => (
+                    <div key={index} className="pb-6 border-b border-gray-100 last:border-0">
+                      <div className="font-semibold text-gray-900 mb-2">{conv.name}</div>
+                      <div className="space-y-3">
+                        <p className="text-gray-800 leading-relaxed">{conv.contentEnglish}</p>
+                        <p className="text-gray-600 italic">{conv.contentSpanish}</p>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
 
-            <div className="mt-6 flex justify-end gap-4">
-              <button
-                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                onClick={handleCancel}
-                disabled={isPublishing}
-              >
-                Discard
-              </button>
-              <button
-                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-green-300 flex items-center gap-2"
-                onClick={handlePublish}
-                disabled={isPublishing}
-              >
-                {isPublishing && <Spinner />}
-                {isPublishing ? 'Publishing...' : 'Publish Story'}
-              </button>
+                <div className="mt-8 flex justify-end gap-4">
+                  <button
+                    className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200"
+                    onClick={handleCancel}
+                    disabled={isPublishing}
+                  >
+                    Discard
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white rounded-lg transition-all duration-200 shadow-sm flex items-center gap-2 disabled:opacity-50"
+                    onClick={handlePublish}
+                    disabled={isPublishing}
+                  >
+                    {isPublishing && <Spinner />}
+                    {isPublishing ? 'Publishing...' : 'Publish Story'}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
