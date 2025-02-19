@@ -4,12 +4,6 @@ import { join } from 'path';
 import { base64ToBuffer, stitchAudioFiles } from './audioUtils';
 
 const ELEVEN_LABS_API_KEY = process.env.ELEVEN_LABS_API_KEY;
-const VOICE_IDS = {
-  male1: 'pNInz6obpgDQGcFmaJgB', // Adam
-  male2: 'yoZ06aMxZJJ28mfd3POQ', // Josh
-  female1: 'EXAVITQu4vr4xnSDxMaL', // Sarah
-  female2: '21m00Tcm4TlvDq8ikWAM', // Rachel
-};
 
 async function generateSpeech(text: string, voiceId: string) {
   const response = await fetch(
@@ -43,25 +37,12 @@ export async function POST(request: Request) {
     const { conversations } = await request.json();
     console.log('Processing conversations for audio generation...');
     
-    // Map character names to voice IDs
-    const characterVoices = new Map<string, string>();
-    let voiceIndex = 0;
-    const voiceIds = Object.values(VOICE_IDS);
-
     // Generate audio for each conversation
     const audioBuffers: Buffer[] = [];
     
     for (const conv of conversations) {
-      // Assign a consistent voice to each character
-      if (!characterVoices.has(conv.name)) {
-        characterVoices.set(conv.name, voiceIds[voiceIndex % voiceIds.length]);
-        voiceIndex++;
-      }
-
-      const voiceId = characterVoices.get(conv.name)!;
-      console.log(`Generating audio for ${conv.name} using voice ${voiceId}`);
-      
-      const audioBuffer = await generateSpeech(conv.contentSpanish, voiceId);
+      console.log(`Generating audio for ${conv.name} using voice ${conv.voiceId}`);
+      const audioBuffer = await generateSpeech(conv.contentSpanish, conv.voiceId);
       audioBuffers.push(Buffer.from(audioBuffer));
     }
 
