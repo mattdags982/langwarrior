@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     });
 
     // Create or update module
-    const module = await prisma.module.upsert({
+    const prismaModule = await prisma.module.upsert({
       where: {
         id: existingModule?.id || 'temp-id',
       },
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     // Create chapter with Cloudinary public_id as audioLink
     const chapter = await prisma.chapter.create({
       data: {
-        moduleId: module.id,
+        moduleId: prismaModule.id,
         title,
         description,
         audioLink: cloudinaryPublicId,
