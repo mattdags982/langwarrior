@@ -4,13 +4,20 @@ import { CldUploadWidget } from "next-cloudinary";
 import { useState } from "react";
 import { publishStory } from '@/app/services/storyService';
 
+const Spinner = () => (
+  <div className="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" role="status">
+    <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
+  </div>
+);
+
 interface StoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (prompt: string) => void;
+  isLoading?: boolean;
 }
 
-const StoryModal = ({ isOpen, onClose, onSubmit }: StoryModalProps) => {
+const StoryModal = ({ isOpen, onClose, onSubmit, isLoading = false }: StoryModalProps) => {
   const [prompt, setPrompt] = useState("");
 
   if (!isOpen) return null;
@@ -25,22 +32,26 @@ const StoryModal = ({ isOpen, onClose, onSubmit }: StoryModalProps) => {
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Enter your story prompt..."
+          disabled={isLoading}
         />
         <div className="flex justify-end gap-2">
           <button
             className="px-4 py-2 bg-gray-200 rounded"
             onClick={onClose}
+            disabled={isLoading}
           >
             Cancel
           </button>
           <button
-            className="px-4 py-2 bg-blue-500 text-white rounded"
+            className="px-4 py-2 bg-blue-500 text-white rounded flex items-center gap-2 disabled:bg-blue-300"
             onClick={() => {
               onSubmit(prompt);
               setPrompt("");
             }}
+            disabled={isLoading}
           >
-            Generate
+            {isLoading && <Spinner />}
+            {isLoading ? 'Generating...' : 'Generate'}
           </button>
         </div>
       </div>
@@ -145,12 +156,6 @@ export default function Dev() {
           </button>
         </div>
 
-        {isLoading && (
-          <div className="text-center">
-            Generating story...
-          </div>
-        )}
-
         {story && (
           <div className="mt-4 p-4 bg-gray-100 rounded">
             <h2 className="text-2xl font-bold mb-2">{story.title}</h2>
@@ -178,10 +183,11 @@ export default function Dev() {
                 Discard
               </button>
               <button
-                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-green-300"
+                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-green-300 flex items-center gap-2"
                 onClick={handlePublish}
                 disabled={isPublishing}
               >
+                {isPublishing && <Spinner />}
                 {isPublishing ? 'Publishing...' : 'Publish Story'}
               </button>
             </div>
@@ -193,6 +199,7 @@ export default function Dev() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={generateStory}
+        isLoading={isLoading}
       />
     </div>
   );
