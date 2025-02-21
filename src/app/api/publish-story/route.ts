@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
   try {
-    const { title, description, conversations, audioPath } = await request.json();
+    const { title, description, conversations, audioPath, module } = await request.json();
 
     if (!audioPath) {
       throw new Error('No audioPath provided');
@@ -18,26 +18,49 @@ export async function POST(request: Request) {
     const cloudinaryPublicId = await saveAudioToStorage(audioPath);
     console.log('Uploaded to Cloudinary with public_id:', cloudinaryPublicId);
 
-    // First find existing module
-    const existingModule = await prisma.module.findFirst({
-      where: {
-        title: 'test gen stories',
-      },
-    });
+    let prismaModule;
+    if (module) {
+      if (module.id) {
+        // Use existing module if id is provided
+        prismaModule = await prisma.module.findUnique({
+          where: { id: module.id }
+        });
+        
+        if (!prismaModule) {
+          throw new Error('Module not found');
+        }
+      } else {
+        // Create a new module with the provided details
+        prismaModule = await prisma.module.create({
+          data: {
+            title: module.title,
+            description: module.description,
+            difficultyRating: 1, // You might want to make this configurable
+            category: 'generated', // You might want to make this configurable
+          },
+        });
+      }
+    } else {
+      // Use the default test module if no module is provided
+      const existingModule = await prisma.module.findFirst({
+        where: {
+          title: 'test gen stories',
+        },
+      });
 
-    // Create or update module
-    const prismaModule = await prisma.module.upsert({
-      where: {
-        id: existingModule?.id || 'temp-id',
-      },
-      update: {},
-      create: {
-        title: 'test gen stories',
-        description: 'Generated conversation stories for testing',
-        difficultyRating: 1,
-        category: 'practice',
-      },
-    });
+      prismaModule = await prisma.module.upsert({
+        where: {
+          id: existingModule?.id || 'temp-id',
+        },
+        update: {},
+        create: {
+          title: 'test gen stories',
+          description: 'Generated conversation stories for testing',
+          difficultyRating: 1,
+          category: 'practice',
+        },
+      });
+    }
 
     // Create chapter with Cloudinary public_id as audioLink
     const chapter = await prisma.chapter.create({
@@ -72,7 +95,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ 
       success: true, 
       chapterId: chapter.id,
-      audioLink: cloudinaryPublicId 
+      audioLink: cloudinaryPublicId,
+      moduleId: prismaModule.id
     });
   } catch (error) {
     console.error('Error in publish-story:', error);

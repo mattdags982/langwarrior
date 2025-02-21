@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function publishStory(story: {
+interface Story {
   title: string;
   description: string;
   conversations: Array<{
@@ -10,7 +10,15 @@ export async function publishStory(story: {
     contentEnglish: string;
     contentSpanish: string;
   }>;
-}) {
+}
+
+interface Module {
+  title: string;
+  description: string;
+  id?: string | null;
+}
+
+export async function publishStory(story: Story, module?: Module) {
   // First generate audio for all conversations
   const audioResponse = await fetch('/api/generate-audio', {
     method: 'POST',
@@ -32,6 +40,7 @@ export async function publishStory(story: {
     body: JSON.stringify({
       ...story,
       audioPath: audioData.audioPath,
+      module: module || null,
     }),
   });
 

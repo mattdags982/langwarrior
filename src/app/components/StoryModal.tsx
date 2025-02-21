@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Spinner from './Spinner';
 
 interface StoryModalProps {
@@ -8,10 +8,22 @@ interface StoryModalProps {
   onClose: () => void;
   onSubmit: (prompt: string) => void;
   isLoading?: boolean;
+  currentStory?: {
+    title: string;
+    description: string;
+  } | null;
 }
 
-const StoryModal = ({ isOpen, onClose, onSubmit, isLoading = false }: StoryModalProps) => {
+const StoryModal = ({ isOpen, onClose, onSubmit, isLoading = false, currentStory }: StoryModalProps) => {
   const [prompt, setPrompt] = useState("");
+
+  useEffect(() => {
+    if (currentStory) {
+      setPrompt(`Title: ${currentStory.title}\n\nDescription: ${currentStory.description}\n\nAdditional context or modifications (optional):`);
+    } else {
+      setPrompt("");
+    }
+  }, [currentStory]);
 
   if (!isOpen) return null;
 
@@ -22,10 +34,10 @@ const StoryModal = ({ isOpen, onClose, onSubmit, isLoading = false }: StoryModal
           <h2 className="text-2xl font-bold text-gray-900">Generate a Story</h2>
           <textarea
             className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-            rows={4}
+            rows={6}
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Enter your story prompt..."
+            placeholder={currentStory ? "" : "Enter your story prompt..."}
             disabled={isLoading}
           />
           <div className="flex justify-end gap-3">
@@ -40,7 +52,9 @@ const StoryModal = ({ isOpen, onClose, onSubmit, isLoading = false }: StoryModal
               className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg transition-all duration-200 flex items-center gap-2 disabled:opacity-50"
               onClick={() => {
                 onSubmit(prompt);
-                setPrompt("");
+                if (!currentStory) {
+                  setPrompt("");
+                }
               }}
               disabled={isLoading}
             >
