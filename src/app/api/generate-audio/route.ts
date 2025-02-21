@@ -5,7 +5,12 @@ import { base64ToBuffer, stitchAudioFiles } from './audioUtils';
 
 const ELEVEN_LABS_API_KEY = process.env.ELEVEN_LABS_API_KEY;
 
-async function generateSpeech(text: string, voiceId: string) {
+async function generateSpeech(
+  text: string, 
+  voiceId: string,
+  previousText?: string,
+  nextText?: string
+) {
   const response = await fetch(
     `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
     {
@@ -21,6 +26,8 @@ async function generateSpeech(text: string, voiceId: string) {
           stability: 0.5,
           similarity_boost: 0.75,
         },
+        previous_text: previousText,
+        next_text: nextText
       }),
     }
   );
@@ -40,9 +47,20 @@ export async function POST(request: Request) {
     // Generate audio for each conversation
     const audioBuffers: Buffer[] = [];
     
-    for (const conv of conversations) {
+    for (let i = 0; i < conversations.length; i++) {
+      const conv = conversations[i];
       console.log(`Generating audio for ${conv.name} using voice ${conv.voiceId}`);
-      const audioBuffer = await generateSpeech(conv.contentSpanish, conv.voiceId);
+      
+      // Get previous and next text for stitching
+      const previousText = i > 0 ? conversations[i - 1].contentSpanish : undefined;
+      const nextText = i < conversations.length - 1 ? conversations[i + 1].contentSpanish : undefined;
+      
+      const audioBuffer = await generateSpeech(
+        conv.contentSpanish, 
+        conv.voiceId,
+        previousText,
+        nextText
+      );
       audioBuffers.push(Buffer.from(audioBuffer));
     }
 
