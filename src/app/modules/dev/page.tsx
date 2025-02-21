@@ -4,6 +4,7 @@ import { CldUploadWidget } from "next-cloudinary";
 import { useState } from "react";
 import { publishStory } from '@/app/services/storyService';
 import StoryModal from '@/app/components/StoryModal';
+import ModuleModal from '@/app/components/ModuleModal';
 import Spinner from '@/app/components/Spinner';
 
 interface Conversation {
@@ -20,11 +21,52 @@ interface StoryResponse {
   }
 }
 
+interface StoryOutline {
+  title: string;
+  description: string;
+}
+
+interface ModuleOutline {
+  title: string;
+  description: string;
+  stories: StoryOutline[];
+}
+
 export default function Dev() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
+  const [isModuleModalOpen, setIsModuleModalOpen] = useState(false);
   const [story, setStory] = useState<StoryResponse['story'] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [moduleOutline, setModuleOutline] = useState<ModuleOutline | null>(null);
+  const [currentStoryIndex, setCurrentStoryIndex] = useState<number>(-1);
+  const [currentModuleId, setCurrentModuleId] = useState<string | null>(null);
+
+  const generateModule = async (prompt: string) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/generate-module', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.error) {
+        console.error('Error:', data.error);
+        throw new Error(data.error);
+      }
+      
+      setModuleOutline(data);
+    } catch (error) {
+      console.error('Error generating module:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const generateStory = async (prompt: string) => {
     setIsLoading(true);
@@ -51,7 +93,7 @@ export default function Dev() {
       console.error('Error generating story:', error);
     } finally {
       setIsLoading(false);
-      setIsModalOpen(false);
+      setIsStoryModalOpen(false);
     }
   };
 
@@ -60,10 +102,40 @@ export default function Dev() {
     
     setIsPublishing(true);
     try {
-      const result = await publishStory(story);
+      const result = await publishStory(
+        story,
+        moduleOutline ? {
+          title: moduleOutline.title,
+          description: moduleOutline.description,
+          id: currentModuleId
+        } : undefined
+      );
+      
       console.log('Story published successfully:', result);
+      
+      // If this is the first story in a module, store the moduleId
+      if (moduleOutline && currentStoryIndex === 0) {
+        setCurrentModuleId(result.moduleId);
+      }
+      
       setStory(null);
-      alert('Story published successfully!');
+      
+      // If we're generating stories from a module, move to the next story
+      if (moduleOutline && currentStoryIndex >= 0) {
+        if (currentStoryIndex < moduleOutline.stories.length - 1) {
+          const nextIndex = currentStoryIndex + 1;
+          setCurrentStoryIndex(nextIndex);
+          setIsStoryModalOpen(true);
+        } else {
+          // We've published all stories in the module
+          setModuleOutline(null);
+          setCurrentStoryIndex(-1);
+          setCurrentModuleId(null);
+          alert('All stories in the module have been published!');
+        }
+      } else {
+        alert('Story published successfully!');
+      }
     } catch (error) {
       console.error('Error publishing story:', error);
       alert('Failed to publish story. Please try again.');
@@ -75,6 +147,25 @@ export default function Dev() {
   const handleCancel = () => {
     if (window.confirm('Are you sure you want to discard this story?')) {
       setStory(null);
+      if (moduleOutline) {
+        setModuleOutline(null);
+        setCurrentStoryIndex(-1);
+        setCurrentModuleId(null);
+      }
+    }
+  };
+
+  const handleModuleContinue = () => {
+    setIsModuleModalOpen(false);
+    setCurrentStoryIndex(0);
+    setIsStoryModalOpen(true);
+  };
+
+  const handleModuleCancel = () => {
+    if (window.confirm('Are you sure you want to discard this module?')) {
+      setModuleOutline(null);
+      setCurrentStoryIndex(-1);
+      setCurrentModuleId(null);
     }
   };
 
@@ -97,9 +188,16 @@ export default function Dev() {
               
               <button
                 className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white rounded-lg transition-all duration-200 shadow-sm text-lg"
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => setIsStoryModalOpen(true)}
               >
                 Story Generator
+              </button>
+
+              <button
+                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg transition-all duration-200 shadow-sm text-lg"
+                onClick={() => setIsModuleModalOpen(true)}
+              >
+                Module Generator
               </button>
             </div>
           </div>
@@ -147,10 +245,21 @@ export default function Dev() {
       </div>
 
       <StoryModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isStoryModalOpen}
+        onClose={() => setIsStoryModalOpen(false)}
         onSubmit={generateStory}
         isLoading={isLoading}
+        currentStory={moduleOutline && currentStoryIndex >= 0 ? moduleOutline.stories[currentStoryIndex] : null}
+      />
+
+      <ModuleModal
+        isOpen={isModuleModalOpen}
+        onClose={() => setIsModuleModalOpen(false)}
+        onSubmit={generateModule}
+        isLoading={isLoading}
+        moduleOutline={moduleOutline}
+        onContinue={handleModuleContinue}
+        onCancel={handleModuleCancel}
       />
     </div>
   );
