@@ -82,10 +82,20 @@ export async function POST(request: Request) {
             characterName: conv.name,
             contentEnglish: conv.contentEnglish,
             translations: {
-              create: {
-                languageCode: 'es',
-                translatedContent: conv.contentSpanish,
-              },
+              create: [
+                {
+                  languageCode: 'es',
+                  translatedContent: conv.contentSpanish,
+                },
+                {
+                  languageCode: 'fr',
+                  translatedContent: conv.contentFrench,
+                },
+                {
+                  languageCode: 'it',
+                  translatedContent: conv.contentItalian,
+                }
+              ],
             },
           },
         });

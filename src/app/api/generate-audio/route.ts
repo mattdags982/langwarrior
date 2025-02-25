@@ -6,7 +6,7 @@ import { base64ToBuffer, stitchAudioFiles } from './audioUtils';
 const ELEVEN_LABS_API_KEY = process.env.ELEVEN_LABS_API_KEY;
 
 async function generateSpeech(
-  text: string, 
+  text: string,
   voiceId: string,
   previousText?: string,
   nextText?: string

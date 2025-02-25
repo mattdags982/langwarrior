@@ -9,15 +9,25 @@ import Spinner from '@/app/components/Spinner';
 
 interface Conversation {
   name: string;
+  voiceId?: string;
   contentEnglish: string;
-  contentSpanish: string;
+  contentSpanish?: string;
+  contentFrench?: string;
+  contentItalian?: string;
 }
 
 interface StoryResponse {
   story: {
     title: string;
     description: string;
-    conversations: Conversation[];
+    conversations: {
+      name: string;
+      voiceId: string;
+      contentEnglish: string;
+      contentSpanish: string;
+      contentFrench: string;
+      contentItalian: string;
+    }[];
   }
 }
 
@@ -72,7 +82,8 @@ export default function Dev() {
     setIsLoading(true);
     try {
       console.log('Generating story with prompt:', prompt);
-      const response = await fetch('/api/generate-story', {
+      // Step 1: Generate the English story
+      const storyResponse = await fetch('/api/generate-story', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -80,17 +91,35 @@ export default function Dev() {
         body: JSON.stringify({ prompt }),
       });
       
-      const data = await response.json();
-      console.log('API Response:', data);
+      const storyData = await storyResponse.json();
+      console.log('Story Generation Response:', storyData);
       
-      if (data.error) {
-        console.error('Error:', data.error);
-        throw new Error(data.error);
+      if (storyData.error) {
+        console.error('Error:', storyData.error);
+        throw new Error(storyData.error);
       }
       
-      setStory(data);
+      // Step 2: Translate the story
+      console.log('Translating story...');
+      const translateResponse = await fetch('/api/translate-story', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ story: storyData }),
+      });
+      
+      const translatedData = await translateResponse.json();
+      console.log('Translation Response:', translatedData);
+      
+      if (translatedData.error) {
+        console.error('Error:', translatedData.error);
+        throw new Error(translatedData.error);
+      }
+      
+      setStory(translatedData);
     } catch (error) {
-      console.error('Error generating story:', error);
+      console.error('Error generating and translating story:', error);
     } finally {
       setIsLoading(false);
       setIsStoryModalOpen(false);
@@ -216,6 +245,8 @@ export default function Dev() {
                       <div className="space-y-3">
                         <p className="text-gray-800 leading-relaxed">{conv.contentEnglish}</p>
                         <p className="text-gray-600 italic">{conv.contentSpanish}</p>
+                        <p className="text-gray-600 italic">{conv.contentFrench}</p>
+                        <p className="text-gray-600 italic">{conv.contentItalian}</p>
                       </div>
                     </div>
                   ))}

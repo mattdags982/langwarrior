@@ -7,8 +7,11 @@ interface Story {
   description: string;
   conversations: Array<{
     name: string;
+    voiceId: string;
     contentEnglish: string;
     contentSpanish: string;
+    contentFrench: string;
+    contentItalian: string;
   }>;
 }
 
