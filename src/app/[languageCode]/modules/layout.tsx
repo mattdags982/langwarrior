@@ -4,8 +4,8 @@ import {
   Disclosure,
 } from "@headlessui/react";
 import { ReactNode } from "react";
-import { usePathname } from 'next/navigation'
-import { useAuth } from "../AuthContext";
+import { usePathname, useRouter } from 'next/navigation'
+import { useAuth } from "../../AuthContext";
 import Image from "next/image";
 
 function classNames(...classes: string[]) {
@@ -18,14 +18,27 @@ interface ExampleProps {
 
 export default function Example({ children }: ExampleProps) {
   const { user, logOut } = useAuth();
-  const pathname = usePathname()
+  const pathname = usePathname();
+  const router = useRouter();
+  
+  const currentLanguage = pathname.split('/')[1] || 'es';
+
+  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newLang = e.target.value;
+    router.push(`/${newLang}/modules`);
+  };
+
   const navigation = [
     { name: "Home", href: "/", current: pathname === "/" },
-    { name: "Stories", href: "/modules", current: pathname === "/modules" },
+    { name: "Stories", href: `/${currentLanguage}/modules`, current: pathname.includes('/modules') && !pathname.includes('/dev') },
   ];
 
   if (process.env.NODE_ENV === 'development') {
-    navigation.push({ name: "Dev", href: "/modules/dev", current: pathname === "/dev" });
+    navigation.push({ 
+      name: "Dev", 
+      href: `/${currentLanguage}/modules/dev`, 
+      current: pathname.includes('/dev') 
+    });
   }
 
   return (
@@ -52,6 +65,21 @@ export default function Example({ children }: ExampleProps) {
                 ))}
               </div>
               <div className="flex items-center space-x-4">
+                <select
+                  value={currentLanguage}
+                  onChange={handleLanguageChange}
+                  className="bg-transparent text-white border border-slate-600 rounded-md px-3 py-1.5 text-sm font-medium hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer appearance-none pr-8"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'right 0.5rem center',
+                    backgroundSize: '1.2em 1.2em'
+                  }}
+                >
+                  <option value="es">Spanish</option>
+                  <option value="fr">French</option>
+                  <option value="it">Italian</option>
+                </select>
                 {user ? (
                   <div className="flex items-center space-x-4">
                     {user.photoURL && (

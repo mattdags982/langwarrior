@@ -2,8 +2,14 @@ import { getAllModules } from "@/app/api/modules";
 
 // export const fetchCache = "default-no-store";
 
-export default async function Example() {
-  const modules = await getAllModules();
+interface PageProps {
+  params: {
+    languageCode: string;
+  };
+}
+
+export default async function Example({ params }: PageProps) {
+  const modules = await getAllModules(params.languageCode);
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">

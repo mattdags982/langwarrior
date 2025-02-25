@@ -7,6 +7,7 @@ import { Blurb } from "@/app/types";
 
 interface BlurbProps {
   blurb: Blurb;
+  languageCode: string;
 }
 
 const transitionClasses = {
@@ -18,11 +19,11 @@ const transitionClasses = {
   leaveTo: "max-h-0 overflow-hidden",
 };
 
-export default function BlurbRead({ blurb }: BlurbProps) {
+export default function BlurbRead({ blurb, languageCode }: BlurbProps) {
   const [showTranslation, setShowTranslation] = useState(false);
 
   const translation = blurb.translations.find(
-    (translation) => translation.languageCode === "es"
+    (translation) => translation.languageCode === languageCode
   );
 
   return (

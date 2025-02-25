@@ -4,17 +4,18 @@ import Link from "next/link";
 interface Props {
   params: {
     module_id: string;
+    languageCode: string;
   };
 }
 
-export default async function Example({ params: { module_id } }: Props) {
-  const chapters = await getChaptersByModuleId(module_id);
+export default async function Example({ params: { module_id, languageCode } }: Props) {
+  const { chapters, moduleTitle, moduleDescription } = await getChaptersByModuleId(module_id, languageCode);
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Chapters</h1>
-          <p className="mt-2 text-sm text-gray-600">Select a chapter to begin reading</p>
+          <h1 className="text-3xl font-bold text-gray-900">{moduleTitle}</h1>
+          <p className="mt-2 text-lg text-gray-600">{moduleDescription}</p>
         </header>
         <div className="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
           <ul role="list" className="divide-y divide-gray-100">
@@ -34,6 +35,11 @@ export default async function Example({ params: { module_id } }: Props) {
                           <p className="text-lg font-medium text-gray-900 capitalize">
                             {chapter.title}
                           </p>
+                          {chapter.description && (
+                            <p className="text-sm text-gray-500 mt-1">
+                              {chapter.description}
+                            </p>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center">

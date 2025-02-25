@@ -1,21 +1,83 @@
 import prisma from "../../../lib/prisma";
 
-export async function getAllModules() {
+export async function getAllModules(languageCode: string) {
   const modules = await prisma.module.findMany({
-    include: {
-      chapters: true,
+    where: {
+      chapters: {
+        some: {
+          blurbs: {
+            some: {
+              translations: {
+                some: {
+                  languageCode: languageCode
+                }
+              }
+            }
+          }
+        }
+      }
     },
+    include: {
+      chapters: {
+        include: {
+          blurbs: {
+            include: {
+              translations: {
+                where: {
+                  languageCode: languageCode
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   });
   return modules;
 }
 
-export async function getChaptersByModuleId(id: string) {
-  const chapters = await prisma.chapter.findMany({
+export async function getChaptersByModuleId(id: string, languageCode: string) {
+  const moduleWithChapters = await prisma.module.findUnique({
     where: {
-      moduleId: id,
+      id: id,
     },
+    include: {
+      chapters: {
+        where: {
+          blurbs: {
+            some: {
+              translations: {
+                some: {
+                  languageCode: languageCode
+                }
+              }
+            }
+          }
+        },
+        include: {
+          blurbs: {
+            include: {
+              translations: {
+                where: {
+                  languageCode: languageCode
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   });
-  return chapters;
+
+  if (!moduleWithChapters) {
+    throw new Error(`Module with id ${id} not found`);
+  }
+
+  return {
+    chapters: moduleWithChapters.chapters,
+    moduleTitle: moduleWithChapters.title,
+    moduleDescription: moduleWithChapters.description
+  };
 }
 
 export async function getChapterById(id: string, lang: string) {
@@ -25,19 +87,33 @@ export async function getChapterById(id: string, lang: string) {
     },
     include: {
       blurbs: {
+        orderBy: {
+          sequence: 'asc'
+        },
         include: {
-          translations: {
-            where: {
-              languageCode: lang,
-            },
-          },
+          translations: true
         },
       },
     },
   });
+
   if (!chapter) {
     throw new Error(`Chapter with id ${id} not found`);
   }
-  chapter.blurbs.sort((a, b) => a.sequence - b.sequence);
-  return chapter;
+
+  const hasAllTranslations = chapter.blurbs.every(
+    blurb => blurb.translations.some(t => t.languageCode === lang)
+  );
+
+  if (!hasAllTranslations) {
+    throw new Error(`Some blurbs are missing translations for language: ${lang}`);
+  }
+
+  return {
+    ...chapter,
+    blurbs: chapter.blurbs.map(blurb => ({
+      ...blurb,
+      translations: blurb.translations.filter(t => t.languageCode === lang)
+    }))
+  };
 }

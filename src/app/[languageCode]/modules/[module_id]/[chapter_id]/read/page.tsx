@@ -6,13 +6,14 @@ interface Props {
   params: {
     module_id: string;
     chapter_id: string;
+    languageCode: string;
   };
 }
 
 export default async function Example({
-  params: { module_id, chapter_id },
+  params: { module_id, chapter_id, languageCode },
 }: Props) {
-  const chapter = await getChapterById(chapter_id, "es");
+  const chapter = await getChapterById(chapter_id, languageCode);
   return (
     <>
       <div className="min-h-screen bg-gray-50">
@@ -32,7 +33,7 @@ export default async function Example({
               <ul role="list" className="space-y-8">
                 {chapter.blurbs.map((blurb) => (
                   <li key={blurb.id} className="prose prose-lg max-w-none prose-p:mt-2 prose-p:mb-2">
-                    <BlurbRead blurb={blurb} />
+                    <BlurbRead blurb={blurb} languageCode={languageCode} />
                   </li>
                 ))}
               </ul>
